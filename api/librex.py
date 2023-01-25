@@ -1,7 +1,7 @@
 import requests
+from config import LIBREX_INSTANT_URL
 
-
-url = "https://search.femboy.hu/api.php?q={}&p={}&t=0"
+url = "https://" + LIBREX_INSTANT_URL + "/api.php?q={}&p={}&t=0"
 
 
 def request(query, page=0):

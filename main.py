@@ -2,6 +2,7 @@ import telebot
 from telebot import types
 from urllib.parse import unquote
 from tokens import BOT_TELEGRAM_TOKEN
+from config import START_MESSAGE
 from api import librex
 
 bot = telebot.TeleBot(BOT_TELEGRAM_TOKEN)
@@ -78,35 +79,41 @@ def generate_answer(message, page=0):
         page (string): номер страницы поиска(по-молчанию = 0)
     """
     datas = librex.request(message.text, page)
+    if datas == []:
+        bot.send_message(
+            message.chat.id,
+            "Ничего не нашлось, попробуйте изменить запрос",
+        )
 
-    for data in datas:
-        if "special_response" in data:
-            send_fast_answer(message, data)
-        else:
-            send_answer(message, data)
+    else:
+        for data in datas:
+            if "special_response" in data:
+                send_fast_answer(message, data)
+            else:
+                send_answer(message, data)
 
-    # Отправка последнего сообщения в виде кнопок навигации(1, 2, 3 и т.п.)
-    markup = types.InlineKeyboardMarkup()
-    markup.add(
-        types.InlineKeyboardButton(f"{1}", callback_data=str(1)),
-        types.InlineKeyboardButton(f"{2}", callback_data=str(2)),
-        types.InlineKeyboardButton(f"{3}", callback_data=str(3)),
-        types.InlineKeyboardButton(f"{4}", callback_data=str(4)),
-        types.InlineKeyboardButton(f"{5}", callback_data=str(5)),
-        types.InlineKeyboardButton(f"{6}", callback_data=str(6)),
-        types.InlineKeyboardButton(f"{7}", callback_data=str(7)),
-        types.InlineKeyboardButton(f"{8}", callback_data=str(8)),
-    )
-    bot.send_message(
-        message.chat.id,
-        message.text,
-        reply_markup=markup,
-    )
+        # Отправка последнего сообщения в виде кнопок навигации(1, 2, 3 и т.п.)
+        markup = types.InlineKeyboardMarkup()
+        markup.add(
+            types.InlineKeyboardButton(f"{1}", callback_data=str(1)),
+            types.InlineKeyboardButton(f"{2}", callback_data=str(2)),
+            types.InlineKeyboardButton(f"{3}", callback_data=str(3)),
+            types.InlineKeyboardButton(f"{4}", callback_data=str(4)),
+            types.InlineKeyboardButton(f"{5}", callback_data=str(5)),
+            types.InlineKeyboardButton(f"{6}", callback_data=str(6)),
+            types.InlineKeyboardButton(f"{7}", callback_data=str(7)),
+            types.InlineKeyboardButton(f"{8}", callback_data=str(8)),
+        )
+        bot.send_message(
+            message.chat.id,
+            message.text,
+            reply_markup=markup,
+        )
 
 
 @bot.message_handler(commands=["start", "help"])
 def send_welcome(message):
-    bot.reply_to(message, "Howdy, how are you doing?")
+    bot.reply_to(message, START_MESSAGE)
 
 
 @bot.message_handler(func=lambda message: True)
